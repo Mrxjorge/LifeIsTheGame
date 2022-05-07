@@ -13,6 +13,7 @@ public class FPSController : MonoBehaviour
     public Camera playerCamera;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 45.0f;
+    public GameObject gunSocket;
 
     CharacterController characterController;
     Vector3 moveDirection = Vector3.zero;
@@ -30,6 +31,23 @@ public class FPSController : MonoBehaviour
         Cursor.visible = false;
     }
 
+    private void useActiveGun()
+    {
+        List<GameObject> children = new List<GameObject>();
+        int childCount = gunSocket.transform.childCount;
+        for (int i = 0; i < childCount; i++)
+        {
+            children.Add(gunSocket.transform.GetChild(i).gameObject);
+        }
+        foreach(GameObject gun in children)
+        {
+            if(gun.gameObject.activeSelf)
+            {
+                gun.GetComponent<Gun>().Shoot();
+            }
+        }
+    }
+
     void Update()
     {
         // We are grounded, so recalculate move direction based on axes
@@ -39,6 +57,10 @@ public class FPSController : MonoBehaviour
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
         float curSpeedX = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Vertical") : 0;
         float curSpeedY = canMove ? (isRunning ? runningSpeed : walkingSpeed) * Input.GetAxis("Horizontal") : 0;
+        if(Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            useActiveGun();
+        }
         float movementDirectionY = moveDirection.y;
         moveDirection = (forward * curSpeedX) + (right * curSpeedY);
 
